@@ -27,7 +27,7 @@ pkg_post_install(){
         [ -e "$cfile" ] || continue
         /sbin/setcfg ${QPKG_NAME} Name "${QPKG_NAME}" -f "$cfile"
         /sbin/setcfg ${QPKG_NAME} Display_Name "Mellanox ConnectX-4 Lx RDMA Driver" -f "$cfile"
-        /sbin/setcfg ${QPKG_NAME} Version "1.0.0" -f "$cfile"
+        /sbin/setcfg ${QPKG_NAME} Version "${QPKG_VER:-1.0.1}" -f "$cfile"
         /sbin/setcfg ${QPKG_NAME} Author "Community / OpenSource" -f "$cfile"
         /sbin/setcfg ${QPKG_NAME} QPKG_File "${QPKG_NAME}.qpkg" -f "$cfile"
         /sbin/setcfg ${QPKG_NAME} Date "$(/bin/date +%Y-%m-%d)" -f "$cfile"
@@ -39,7 +39,12 @@ pkg_post_install(){
         /sbin/setcfg ${QPKG_NAME} Enable "TRUE" -f "$cfile"
         /sbin/setcfg ${QPKG_NAME} Class "null" -f "$cfile"
         /sbin/setcfg ${QPKG_NAME} Visible "1" -f "$cfile"
-        /sbin/rmcfg ${QPKG_NAME} Sys_App -f "$cfile" 2>/dev/null || true
+        /sbin/setcfg ${QPKG_NAME} Build "$(/bin/date +%Y%m%d)" -f "$cfile"
+        /sbin/setcfg ${QPKG_NAME} Opt_Xml "0" -f "$cfile"
+        /sbin/setcfg ${QPKG_NAME} FW_Ver_Min "4.5.0" -f "$cfile"
+        /sbin/setcfg ${QPKG_NAME} FW_Ver_Max "10.0.0" -f "$cfile"
+        /sbin/setcfg ${QPKG_NAME} Volume_Select "1" -f "$cfile"
+        /sbin/setcfg ${QPKG_NAME} Desktop "0" -f "$cfile"
     done
 
     # Ensure icons are copied directly to RSS images directory
