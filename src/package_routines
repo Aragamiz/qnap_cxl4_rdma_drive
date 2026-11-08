@@ -9,11 +9,46 @@ pkg_install(){
 }
 
 pkg_post_install(){
-    [ -n "$SYS_QPKG_DIR" ] && /sbin/setcfg ${QPKG_NAME} Install_Path "$SYS_QPKG_DIR" -f /etc/config/qpkg.conf
-    /sbin/setcfg ${QPKG_NAME} Status complete -f /etc/config/qpkg.conf
-    /sbin/setcfg ${QPKG_NAME} Enable "TRUE" -f /etc/config/qpkg.conf
-    /sbin/setcfg ${QPKG_NAME} Class "null" -f /etc/config/qpkg.conf
-    /sbin/rmcfg ${QPKG_NAME} Sys_App -f /etc/config/qpkg.conf 2>/dev/null || true
+    local pdir="$SYS_QPKG_DIR"
+    if [ -z "$pdir" ] || [ ! -d "$pdir" ]; then
+        for candidate in /share/ZFS530_DATA/.qpkg/${QPKG_NAME} \
+                         /share/ZFS2_DATA/.qpkg/${QPKG_NAME} \
+                         /share/ZFS1_DATA/.qpkg/${QPKG_NAME} \
+                         /share/CACHEDEV1_DATA/.qpkg/${QPKG_NAME} \
+                         /share/HDA_DATA/.qpkg/${QPKG_NAME}; do
+            if [ -d "$candidate" ]; then
+                pdir="$candidate"
+                break
+            fi
+        done
+    fi
+
+    for cfile in /etc/config/qpkg.conf /etc/config.local/qpkg.conf /mnt/HDA_ROOT/.config/qpkg.conf; do
+        [ -e "$cfile" ] || continue
+        /sbin/setcfg ${QPKG_NAME} Name "${QPKG_NAME}" -f "$cfile"
+        /sbin/setcfg ${QPKG_NAME} Display_Name "Mellanox ConnectX-4 Lx RDMA Driver" -f "$cfile"
+        /sbin/setcfg ${QPKG_NAME} Version "1.0.0" -f "$cfile"
+        /sbin/setcfg ${QPKG_NAME} Author "Community / OpenSource" -f "$cfile"
+        /sbin/setcfg ${QPKG_NAME} QPKG_File "${QPKG_NAME}.qpkg" -f "$cfile"
+        /sbin/setcfg ${QPKG_NAME} Date "$(/bin/date +%Y-%m-%d)" -f "$cfile"
+        /sbin/setcfg ${QPKG_NAME} Shell "${pdir}/CX4L_RDMA.sh" -f "$cfile"
+        /sbin/setcfg ${QPKG_NAME} Install_Path "${pdir}" -f "$cfile"
+        /sbin/setcfg ${QPKG_NAME} RC_Number "101" -f "$cfile"
+        /sbin/setcfg ${QPKG_NAME} Timeout "120" -f "$cfile"
+        /sbin/setcfg ${QPKG_NAME} Status "complete" -f "$cfile"
+        /sbin/setcfg ${QPKG_NAME} Enable "TRUE" -f "$cfile"
+        /sbin/setcfg ${QPKG_NAME} Class "null" -f "$cfile"
+        /sbin/setcfg ${QPKG_NAME} Visible "1" -f "$cfile"
+        /sbin/rmcfg ${QPKG_NAME} Sys_App -f "$cfile" 2>/dev/null || true
+    done
+
+    # Ensure icons are copied directly to RSS images directory
+    if [ -d "$pdir" ]; then
+        /bin/cp -f "$pdir/CX4L_RDMA.gif" /home/httpd/RSS/images/CX4L_RDMA.gif 2>/dev/null || true
+        /bin/cp -f "$pdir/CX4L_RDMA_80.gif" /home/httpd/RSS/images/CX4L_RDMA_80.gif 2>/dev/null || true
+        /bin/cp -f "$pdir/CX4L_RDMA_gray.gif" /home/httpd/RSS/images/CX4L_RDMA_gray.gif 2>/dev/null || true
+    fi
+
     return 0
 }
 
