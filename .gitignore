@@ -1,0 +1,10 @@
+# Temporary artifacts
+*.tmp
+*.log
+.qcodesigning/
+
+# Private key protection (Keep cert public, never commit private keys)
+*.pem
+*.key
+cert/key.pem
+!cert/cert.pem

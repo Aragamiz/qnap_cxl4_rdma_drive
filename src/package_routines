@@ -1,0 +1,21 @@
+# package_routines for CX4L_RDMA (Community Edition)
+
+pkg_pre_install(){
+    return 0
+}
+
+pkg_install(){
+    return 0
+}
+
+pkg_post_install(){
+    /sbin/setcfg ${QPKG_NAME} Status complete -f /etc/config/qpkg.conf
+    /sbin/setcfg ${QPKG_NAME} Enable "TRUE" -f /etc/config/qpkg.conf
+    /sbin/setcfg ${QPKG_NAME} Class "null" -f /etc/config/qpkg.conf
+    /sbin/rmcfg ${QPKG_NAME} Sys_App -f /etc/config/qpkg.conf 2>/dev/null || true
+    return 0
+}
+
+pkg_clean(){
+    return 0
+}
