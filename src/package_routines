@@ -9,6 +9,7 @@ pkg_install(){
 }
 
 pkg_post_install(){
+    [ -n "$SYS_QPKG_DIR" ] && /sbin/setcfg ${QPKG_NAME} Install_Path "$SYS_QPKG_DIR" -f /etc/config/qpkg.conf
     /sbin/setcfg ${QPKG_NAME} Status complete -f /etc/config/qpkg.conf
     /sbin/setcfg ${QPKG_NAME} Enable "TRUE" -f /etc/config/qpkg.conf
     /sbin/setcfg ${QPKG_NAME} Class "null" -f /etc/config/qpkg.conf

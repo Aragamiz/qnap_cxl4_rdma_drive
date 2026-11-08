@@ -82,7 +82,7 @@ rollback_on_failure()
     [ -f /etc/config/qpkg.conf ] && /sbin/setcfg "$QPKG_NAME" Enable FALSE -f /etc/config/qpkg.conf 2>/dev/null
 
     if [ -x /usr/local/sbin/notify ]; then
-        /usr/local/sbin/notify send -A A039 -C C002 -M 28 -l warn -t 3 "[{0}] Failed to start {1} ($reason). Safe rollback completed; Ethernet network is unaffected." "%A039%" "Advanced Network Driver" 2>/dev/null
+        /usr/local/sbin/notify send -A A039 -C C002 -M 28 -l warn -t 3 "[{0}] Failed to start {1} ($reason). Safe rollback completed; Ethernet network is unaffected." "%A039%" "$QPKG_NAME" 2>/dev/null
     fi
     return 0
 }
@@ -242,6 +242,16 @@ case "$1" in
     fi
 
     Net_DIR=$(/sbin/getcfg "$QPKG_NAME" Install_Path -d "" -f "$CONF")
+    if [ -z "$Net_DIR" ] || [ ! -d "$Net_DIR/driver" ]; then
+        PRG="$0"
+        while [ -h "$PRG" ]; do
+            PDIR=$(dirname "$PRG")
+            PRG=$(readlink "$PRG")
+            [ "${PRG#/}" = "$PRG" ] && PRG="$PDIR/$PRG"
+        done
+        Net_DIR=$(cd "$(dirname "$PRG")" && pwd)
+        log_msg "Resolved Net_DIR from binary location: $Net_DIR"
+    fi
     ensure_cx4_nic_caps
 
     preflight_check "$Net_DIR"
